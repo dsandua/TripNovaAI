@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0000ff",
+                        "background-light": "#f5f5f8",
+                        "background-dark": "#0f0f23",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<title>TripNovaAI - AI Powered Travel Planning</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-300">
+<div class="relative flex min-h-screen flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="container mx-auto px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">explore</span>
+<span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">TripNovaAI</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Explore</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Itineraries</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Pricing</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">About</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all">Login</button>
+<button class="px-5 py-2 text-sm font-bold bg-primary text-white rounded-lg hover:opacity-90 transition-all">Sign Up</button>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<!-- Hero Section -->
+<section class="relative h-[500px] w-full overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Majestic mountain lake landscape with turquoise water" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6zAuVhLqXy44Ms-VVuyHCI4hLkTh4jOsvFh0KQ90IderHmQ_qT8FoEkWpwDSTiz8rwhUeyieEFEtgSM9rEpJ_5vNSjg77ZKlbISAEBc9YiuRcnL9ams_1G1E-yPEBfyIku32ruPJkeNUEkTSANVdlgJgvH3vk2wfC400NLsvbBToFYtMCm3WNenvUR-8auNHlBdWeQ2FIBrw1sbLSsMfTQf-onVRCsY0Wa90c4YMFXxya603yHSloGiVnEaVpamKN1B78j-yRcbX7');"></div>
+<div class="relative h-full flex flex-col items-center justify-center text-center px-6">
+<h1 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">Escape the Ordinary</h1>
+<p class="text-lg md:text-xl text-white/90 max-w-2xl mb-8 leading-relaxed">
+                        Your personal AI concierge for crafting unforgettable journeys. No more endless searching, just pure exploration.
+                    </p>
+<button class="bg-primary hover:scale-105 transform transition-all text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary/20">
+                        Start Your Journey
+                    </button>
+</div>
+</section>
+<!-- Planning Form Section -->
+<section class="container mx-auto px-6 -mt-20 relative z-10 pb-20">
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-8 border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">map</span>
+<h2 class="text-2xl font-bold">Build Your Dream Trip</h2>
+</div>
+<form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Origin & Destination -->
+<div class="space-y-4">
+<label class="block">
+<span class="text-sm font-semibold mb-1 block">Origin</span>
+<input class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary" placeholder="City or Airport" type="text"/>
+</label>
+<label class="block">
+<span class="text-sm font-semibold mb-1 block">Destination</span>
+<input class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary" placeholder="City, Country, or 'Random'" type="text"/>
+</label>
+</div>
+<!-- Transport & People -->
+<div class="space-y-4">
+<div>
+<span class="text-sm font-semibold mb-2 block">Transport Type</span>
+<div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+<button class="flex-1 py-1.5 px-3 rounded-md bg-white dark:bg-slate-700 shadow-sm text-sm font-medium flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">flight</span> Plane
+                                    </button>
+<button class="flex-1 py-1.5 px-3 rounded-md text-sm font-medium flex items-center justify-center gap-1 text-slate-500" type="button">
+<span class="material-symbols-outlined text-sm">directions_car</span> Car
+                                    </button>
+</div>
+</div>
+<label class="block">
+<span class="text-sm font-semibold mb-1 block">Travelers</span>
+<select class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary">
+<option>Solo Traveler</option>
+<option>Couple</option>
+<option>Family (3-5)</option>
+<option>Group (6+)</option>
+</select>
+</label>
+</div>
+<!-- Duration & Budget -->
+<div class="space-y-4">
+<label class="block">
+<span class="text-sm font-semibold mb-1 block">Duration</span>
+<select class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary">
+<option>Weekend Trip</option>
+<option>3-5 Days</option>
+<option>1 Week</option>
+<option>2+ Weeks</option>
+<option>Custom Range</option>
+</select>
+</label>
+<label class="block">
+<span class="text-sm font-semibold mb-1 block">Budget Range</span>
+<select class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary">
+<option>$0 - $500</option>
+<option>$500 - $1,500</option>
+<option>$1,500 - $3,000</option>
+<option>$3,000+</option>
+</select>
+</label>
+</div>
+<!-- Style & Interests -->
+<div class="space-y-4">
+<label class="block">
+<span class="text-sm font-semibold mb-1 block">Travel Style</span>
+<select class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary">
+<option>Cultural Immersion</option>
+<option>Gastronomic Tour</option>
+<option>Relaxation &amp; Wellness</option>
+<option>Adventure Sports</option>
+</select>
+</label>
+<div>
+<span class="text-sm font-semibold mb-1 block">Interests</span>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full border border-primary/20">Hiking</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full">Cycling</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full">Museums</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full">Nightlife</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 mt-4">
+<button class="w-full bg-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20" type="submit">
+<span class="material-symbols-outlined">auto_awesome</span>
+                                Generate Itinerary
+                            </button>
+</div>
+</form>
+</div>
+</section>
+<!-- Popular Itineraries -->
+<section class="container mx-auto px-6 py-20">
+<div class="flex items-center justify-between mb-12">
+<div>
+<h2 class="text-3xl font-black tracking-tight mb-2">Popular Itineraries</h2>
+<p class="text-slate-500 dark:text-slate-400">Hand-picked experiences generated by our community</p>
+</div>
+<a class="text-primary font-bold flex items-center gap-1 hover:underline" href="#">
+                        View All <span class="material-symbols-outlined">chevron_right</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Amalfi Coast -->
+<div class="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg hover:shadow-xl transition-all">
+<div class="relative h-56 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Colorful houses on the cliffside of Amalfi Coast" data-location="Amalfi Coast, Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3OomwR2v6YCCKl4CfK2Difs0d6Qx7TVUT2aNXm2FoHw7FKxjI9Yn0by6HyYRqvmMHdtRa9awX1bbfy-nZ_O2DkUVhNsYd-xtlViQFNpCdO7zVGJiTzFUj9z5SvcHEsY4qsu_7SmIpJTiB1w7WpDQe_bfp-dEZXt0uOQIJO1t6P_TPiVBoyZi05Kxc4S32n71rquabW_VENIFBADlypI_RGyUauwZfZxeTdQkq41Tx-_Oaezogwr4cfT7t2vKqhHF3iOjeezkjB1pX"/>
+<div class="absolute top-4 left-4">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-slate-900 shadow-sm">Cultural</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">Amalfi Coast Wonders</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2">Experience the dramatic coastline, pastel villages, and crystalline waters of Southern Italy.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">7 Days</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm">star</span>
+<span class="text-sm font-bold">4.9</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Kyoto -->
+<div class="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg hover:shadow-xl transition-all">
+<div class="relative h-56 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Golden temple in Kyoto surrounded by autumn leaves" data-location="Kyoto, Japan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQFzYhU_U9c6eFgoCyqn3DjIlTEW54J7-5BfdgXqTlY3KnFvnAjixKQN1pcypOSudfn5I_oDTt-XHmJe0gyqaApeweikuCJ-K-DCRi9Jp5bo1qfLureZeNm82rLFbGYUmwQxmaLGsLyh0scaQaLFFQlmOIwv3qiTTswgMkx4Ov1y_saXhYyggVZoUjMkFwwmrSvzSaaSAaRvg-t8WHxhnsjvongZEJ2c_5BeMDYCmsOvwKBN-RqAWJybyjsvKXGAAJV6LD-tLZXd-v"/>
+<div class="absolute top-4 left-4">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-slate-900 shadow-sm">Zen &amp; History</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">Kyoto Temple Trail</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2">A spiritual journey through ancient shrines, traditional tea houses, and bamboo forests.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">5 Days</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm">star</span>
+<span class="text-sm font-bold">4.8</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Greek Islands -->
+<div class="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg hover:shadow-xl transition-all">
+<div class="relative h-56 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Iconic blue domes and white walls in Santorini" data-location="Santorini, Greece" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQx1AsAar03KA2NHqySLVF0kS8ls_mKAkjugtZ85258gVum4UG1rjSjodVyTxpGXIwxT6-65gpPcIMkUL68GwHJLiLxswCg2CnaYybrGK6lP2T9_rwESUW2pjvyZKdGlpGg6_uxhtTnyXaeCbBqI5z7gI8PBolGse6PvAPuW9rV9kp5QEAg0jt_kqfVXyv72Dq7HsdiG_M4U15PllMAfdPSHj9yxPGG8p9TCDhRcpGHiCexdN7FDHmq3wA5gH2jXemmTi6hxRNXIPb"/>
+<div class="absolute top-4 left-4">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-slate-900 shadow-sm">Island Hopping</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">Cycladic Odyssey</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2">Discover the iconic blue domes of Santorini and the vibrant nightlife of Mykonos.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">10 Days</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm">star</span>
+<span class="text-sm font-bold">5.0</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-900 py-12">
+<div class="container mx-auto px-6">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">explore</span>
+<span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">TripNovaAI</span>
+</div>
+<div class="flex gap-8 text-sm text-slate-500 dark:text-slate-400 font-medium">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Cookie Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-lg">public</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-lg">mail</span>
+</a>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-900 text-center text-xs text-slate-400">
+                    © 2024 TripNovaAI Inc. All rights reserved. Built with intelligence for the curious traveler.
+                </div>
+</div>
+</footer>
+</div>
+</body></html>

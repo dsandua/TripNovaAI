@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0000ff",
+                        "background-light": "#f5f5f8",
+                        "background-dark": "#0f0f23",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>AI Travel Planner - Itinerary</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 shrink-0">
+<div class="flex items-center gap-4">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">explore</span>
+</div>
+<div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight">7 Days in Italy - Adventure &amp; Gastronomy</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400">June 12 - June 19 • 2 Adults • High Energy</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary text-sm font-semibold border-b-2 border-primary pb-1" href="#">Itinerary</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Documents</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex gap-2 border-l border-slate-200 dark:border-slate-800 pl-6">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
+<img class="w-full h-full object-cover" data-alt="User profile avatar portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA6f05_nKyJPQBRxYpRdQrJiYNeI2RnkeS3J4YJS25vkMg6D49_xZP5AjSOmezj5_kzcgfYxrQVjK-dRwF3TKQn93qsru11X2Jhz9bi79jZJQw_5cPP9afnXV-kkkU9Fy7_0aHUbdqoU1zXLWEEOqxVZk33ndbLShTu1a_ITfS534IyEg13OPUJknsl1bX7Wik5O73BX7naJ0s18ELicTYyz3nDZ0hJ8jKFrPFL3UBVSrvjO4e9iGijDap5lMVuE2ZnHSjkSpOGBtm"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex flex-1 overflow-hidden">
+<section class="w-[60%] flex flex-col overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 custom-scrollbar">
+<div class="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 pt-4 border-b border-slate-100 dark:border-slate-800">
+<div class="flex gap-4 overflow-x-auto no-scrollbar pb-3">
+<button class="px-4 py-2 bg-primary text-white rounded-full text-sm font-bold whitespace-nowrap">Day 1: Rome</button>
+<button class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-200">Day 2: Florence</button>
+<button class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-200">Day 3: Tuscany</button>
+<button class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-200">Day 4: Siena</button>
+<button class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-200">Day 5: Cinque Terre</button>
+</div>
+</div>
+<div class="p-8 max-w-3xl mx-auto w-full">
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Day 1: Historical Wonders of Rome</h2>
+<p class="text-slate-500 dark:text-slate-400">Start your journey in the eternal city with a deep dive into Roman history and authentic local cuisine.</p>
+</div>
+<div class="space-y-0 relative">
+<div class="absolute left-4 top-2 bottom-2 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+<div class="relative pl-12 pb-10">
+<div class="absolute left-2.5 top-1.5 size-3 rounded-full bg-primary border-4 border-white dark:border-slate-900 ring-4 ring-primary/20 z-10"></div>
+<div class="flex flex-col md:flex-row gap-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="The Roman Colosseum at sunrise" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdioO5RyIIS62Kx-UimepdOcTwhhi5DMHMqcGNnKdXrhffst7TJZvxkXtwc3IsZ2ynHNg4UyQCkc-A-o4LKfGnjTBbKMepk1qYExhSLNwXblIecNWAYCA6HdeuJHe8qp2QObTII-z9bncMw8kFUKTU_naI185G0oVZjbfgYi3zwgpRBNBKr-BZ7l4YRQWrYmdcfMd1cNu9hMhzb51s3SEtrEabO1tUWPlTgXnoNqw7L2YufYZpi9TziICLOU_k8ZilcdRDKwmLbD2i"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">Colosseum Guided Tour</h3>
+<span class="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded uppercase">Activity</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-2">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 09:00 AM</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">hourglass_empty</span> 2.5 Hours</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">Skip-the-line access to the Flavian Amphitheatre. Explore the underground chambers and the arena floor with a certified historian.</p>
+</div>
+</div>
+</div>
+<div class="relative pl-12 pb-10">
+<div class="absolute left-2.5 top-1.5 size-3 rounded-full bg-orange-500 border-4 border-white dark:border-slate-900 ring-4 ring-orange-500/20 z-10"></div>
+<div class="flex flex-col md:flex-row gap-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Traditional Italian pasta carbonara dish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCECPHg3xtvA9LOPv_jKm97YJ58qUrH-AkbW3IbL1u_QsBkFoaoX_Ugrdz9u9ClTkHgsSPAvahJMfdNd2VwHNn49JQ_41zuDcChIRbsRu7pOA2oSJpvF-V7RX4fxclWvBa-4GwbSGJhD-zGz_k1z4pdTg94i-qz_mh3P3ndZ1NAhLIRXQEnUmQuOOA3Ze8VkCzeSiKpERFIuE29naUFjVjOyY4BrtYdumTNAN9W0W-cdj5ZDQWUnyZGBGdFq4ww2Nv0HhieBo2Zxop"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">Lunch at Armando al Pantheon</h3>
+<span class="text-xs font-bold px-2 py-1 bg-orange-100 text-orange-600 rounded uppercase">Restaurant</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-2">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 12:30 PM</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">star</span> 4.8 Rating</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">Historic family-run eatery serving classic Roman dishes since 1961. Try the Spaghetti alla Carbonara.</p>
+</div>
+</div>
+</div>
+<div class="relative pl-12 pb-10">
+<div class="absolute left-2.5 top-1.5 size-3 rounded-full bg-emerald-500 border-4 border-white dark:border-slate-900 ring-4 ring-emerald-500/20 z-10"></div>
+<div class="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+<div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm mb-4">
+<span class="material-symbols-outlined">hiking</span>
+                                    OUTDOOR ROUTE: JANICULUM HILL HIKE
+                                </div>
+<div class="grid grid-cols-3 gap-4 mb-4 text-center">
+<div class="bg-white dark:bg-slate-800 p-2 rounded-lg">
+<p class="text-[10px] uppercase text-slate-400 font-bold">Distance</p>
+<p class="font-bold text-slate-900 dark:text-slate-100">4.2 km</p>
+</div>
+<div class="bg-white dark:bg-slate-800 p-2 rounded-lg">
+<p class="text-[10px] uppercase text-slate-400 font-bold">Elevation</p>
+<p class="font-bold text-slate-900 dark:text-slate-100">85 m</p>
+</div>
+<div class="bg-white dark:bg-slate-800 p-2 rounded-lg">
+<p class="text-[10px] uppercase text-slate-400 font-bold">Difficulty</p>
+<p class="font-bold text-emerald-600">Easy</p>
+</div>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400">A scenic urban trek starting from Trastevere, winding up to the Gianicolo terrace for the best panoramic sunset views of Rome.</p>
+</div>
+</div>
+<div class="relative pl-12 pb-10">
+<div class="absolute left-2.5 top-1.5 size-3 rounded-full bg-primary border-4 border-white dark:border-slate-900 ring-4 ring-primary/20 z-10"></div>
+<div class="flex flex-col md:flex-row gap-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Michelangelo's Sistine Chapel ceiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRSFcOBjm81D8PPT_XPGpG9QvRH8a0XvnGSyh1Kk5bDNvic1xFXmOQFEwJJSrZGfEiKjLFntj3OfbIhYj_PB2FjFweTEhZfMgEFzD5dGYddI5SqAe2bbNQLJfhliX3lxza9KlmoT1lAymJgzdTHjgZYNSQBrMJTHjSihFfAOwgT5Wdip_t7GevHeF_zy1EQUOYWu97x-KOoRFfZSvCTgCr0eNZDHR40sC0SX5mA7Y67NDeYUywacknV-cjEKZpO7n0Wzigkh3xutVb"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">Vatican Museums &amp; Sistine Chapel</h3>
+<span class="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded uppercase">Activity</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-2">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 03:30 PM</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">hourglass_empty</span> 3 Hours</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">Immerse yourself in centuries of art. Highlighting the Raphael Rooms and Michelangelo's masterpiece.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="w-[40%] relative bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-slate-300 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80 grayscale" data-alt="Stylized map of Rome with numbered pin markers" data-location="Rome, Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZcnLpuR2svs5QCTB-NkxU0e4tmXkR63v_Nq_pWUR-Bgy3zwJyy4JPgEuDGvLbMVVts7bgxtaXA5RBpClb2k_b8p0yKeJgrNWPnmo0Fi_IASvNvP1InHe9UfELE3GMaAHx4QM8jcNbCyQDXlrfiOC4ni8o0zyxUvbKcfYGJzsd5K4CAfxjf9WKNOxgBo4IWhuo9goJMdOpvgcducsOyLZIUMPNMIbq4J8IMlnYBQFofpJCqEhvdaCMnbWbJFmHYb4D2Qz6GAqbNeqX"/>
+<div class="absolute top-[35%] left-[45%] z-10">
+<div class="relative flex flex-col items-center">
+<div class="bg-primary text-white text-xs font-bold size-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg">1</div>
+<div class="w-0.5 h-4 bg-primary"></div>
+</div>
+</div>
+<div class="absolute top-[42%] left-[48%] z-10">
+<div class="relative flex flex-col items-center">
+<div class="bg-orange-500 text-white text-xs font-bold size-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg">2</div>
+<div class="w-0.5 h-4 bg-orange-500"></div>
+</div>
+</div>
+<div class="absolute top-[55%] left-[40%] z-10">
+<div class="relative flex flex-col items-center">
+<div class="bg-emerald-500 text-white text-xs font-bold size-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg">3</div>
+<div class="w-0.5 h-4 bg-emerald-500"></div>
+</div>
+</div>
+<div class="absolute top-[30%] left-[30%] z-10">
+<div class="relative flex flex-col items-center">
+<div class="bg-primary text-white text-xs font-bold size-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg">4</div>
+<div class="w-0.5 h-4 bg-primary"></div>
+</div>
+</div>
+<svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+<path d="M 360 280 Q 380 320 384 336 L 408 360" fill="none" stroke="#0000ff" stroke-dasharray="4" stroke-width="2"></path>
+<path d="M 384 336 Q 360 400 320 440" fill="none" stroke="#10b981" stroke-dasharray="4" stroke-width="2"></path>
+<path d="M 320 440 Q 280 350 240 240" fill="none" stroke="#0000ff" stroke-dasharray="4" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 right-6 z-20">
+<div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-2xl border border-white/20 shadow-2xl">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+                                Budget Estimation
+                            </h3>
+<span class="text-xs font-bold text-slate-500 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded">Moderate</span>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px]">flight</span>
+<span>Transport</span>
+</div>
+<span class="font-semibold text-sm">€1,240</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px]">hotel</span>
+<span>Lodging</span>
+</div>
+<span class="font-semibold text-sm">€2,100</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+<span>Food &amp; Drinks</span>
+</div>
+<span class="font-semibold text-sm">€950</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px]">confirmation_number</span>
+<span>Activities</span>
+</div>
+<span class="font-semibold text-sm">€680</span>
+</div>
+</div>
+<div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-end">
+<div>
+<p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Estimated Total</p>
+<p class="text-2xl font-bold text-primary">€4,970</p>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all">
+                                Reserve All
+                            </button>
+</div>
+</div>
+</div>
+<div class="absolute top-6 right-6 flex flex-col gap-2 z-20">
+<button class="bg-white dark:bg-slate-900 size-10 rounded-lg shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="bg-white dark:bg-slate-900 size-10 rounded-lg shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="bg-white dark:bg-slate-900 size-10 rounded-lg shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+</section>
+</main>
+</div>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

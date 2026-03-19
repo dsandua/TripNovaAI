@@ -1,237 +1,219 @@
+
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useState, Suspense, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
+import InteractiveMap from '@/components/map/InteractiveMap'
 import TimelineItem from '@/components/itinerary/TimelineItem'
 import BudgetPanel from '@/components/itinerary/BudgetPanel'
-import InteractiveMap from '@/components/map/InteractiveMap'
-
-interface ItineraryData {
-  title: string
-  slug: string
-  destination: string
-  origin: string
-  duration: number
-  travelType: string
-  transportType: string
-  budget: string
-  interests: string[]
-  route?: Array<{ name: string; lat: number; lng: number }>
-  days: any[]
-  totalCost: number
-  summary: string
-  tips: string[]
-}
-
 import { useLanguage } from '@/lib/i18n'
 
 function ItineraryContent() {
   const searchParams = useSearchParams()
-  const { t } = useLanguage()
-  const [itinerary, setItinerary] = useState<ItineraryData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const data = searchParams.get('data')
+  const { t, language } = useLanguage()
   const [activeDay, setActiveDay] = useState(0)
+  const [itinerary, setItinerary] = useState<any>(null)
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
+  const [isTranslating, setIsTranslating] = useState(false)
+
+  const hasMarker = (item: any) => {
+    return item.type !== 'transport' && 
+           item.location?.lat !== undefined && 
+           item.location?.lat !== null && 
+           item.location?.lng !== undefined && 
+           item.location?.lng !== null &&
+           item.location?.lat !== 0;
+  }
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('currentItinerary')
-    if (stored) {
+    if (data) {
       try {
-        const data = JSON.parse(stored)
-        setItinerary(data)
+        setItinerary(JSON.parse(decodeURIComponent(data)))
       } catch (e) {
-        console.error('Error parsing stored itinerary:', e)
+        console.error('Error parsing itinerary data:', e)
+      }
+    } else {
+      const stored = sessionStorage.getItem('currentItinerary')
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setItinerary(parsed)
+        } catch (e) {
+          console.error('Error parsing stored itinerary:', e)
+        }
       }
     }
-    setLoading(false)
-  }, [])
+  }, [data])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <span className="material-symbols-outlined text-6xl text-primary animate-spin">sync</span>
-          <p className="mt-4 text-slate-600 font-bold">{t('iti_loading')}</p>
-        </div>
-      </div>
-    )
-  }
+  // Dynamic Content Translation
+  useEffect(() => {
+    if (!itinerary) return;
+
+    const currentLang = itinerary.originalLanguage || (itinerary.title?.toLowerCase().includes('itinerario') ? 'es' : 'en');
+    
+    if (currentLang !== language) {
+      const triggerTranslation = async () => {
+        setIsTranslating(true);
+        try {
+          const response = await fetch('/api/translate-itinerary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              itinerary, 
+              targetLang: language 
+            }),
+          });
+          const result = await response.json();
+          if (result.success) {
+            setItinerary(result);
+          }
+        } catch (error) {
+          console.error('Translation error:', error);
+        } finally {
+          setIsTranslating(false);
+        }
+      };
+      
+      triggerTranslation();
+    }
+  }, [language, itinerary?.id]); // Only re-translate on language change or different itinerary
+
+  const activeDayData = itinerary?.days?.[activeDay] || itinerary?.days?.[0]
+  
+  const mapLocations = useMemo(() => {
+    if (!activeDayData?.items) return []
+    let markerIdx = 0;
+    return activeDayData.items
+      .filter((item: any) => hasMarker(item))
+      .map((item: any) => ({
+        id: item.id || `${activeDay}-${markerIdx++}`,
+        name: item.name || '',
+        lat: Number(item.location.lat),
+        lng: Number(item.location.lng),
+        type: item.type || 'activity',
+      }))
+  }, [activeDayData, activeDay])
 
   if (!itinerary) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <span className="material-symbols-outlined text-6xl text-slate-300">map</span>
-          <h1 className="mt-4 text-2xl font-bold">{t('iti_not_found')}</h1>
-          <p className="mt-2 text-slate-500">{t('iti_generate_new')}</p>
-          <a href="/" className="mt-4 inline-block px-6 py-2 bg-primary text-white rounded-lg font-bold">
-            {t('iti_go_home')}
+      <div className="flex items-center justify-center h-screen bg-background-light dark:bg-slate-950">
+        <div className="text-center p-16 bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 max-w-lg shadow-premium">
+          <span className="material-symbols-outlined text-7xl text-sky-200 dark:text-sky-800 mb-6 font-thin">explore_off</span>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">{t('trip_not_found')}</h1>
+          <p className="text-slate-400 dark:text-slate-500 text-lg mb-8 leading-relaxed font-semibold">
+            {t('trip_not_found_desc')}
+          </p>
+          <a href="/" className="inline-flex items-center justify-center px-10 h-16 bg-sky-500 hover:bg-sky-600 text-white rounded-3xl font-black transition-all hover:scale-105 active:scale-95 shadow-premium">
+            {t('back_home')}
           </a>
         </div>
       </div>
     )
   }
 
-  const activeDayData = itinerary.days?.[activeDay]
-  
-  // Get locations for the map
-  let mapLocations: any[] = []
-  
-  // Always include the route waypoints if it's a road trip
-  if (itinerary.transportType === 'car' && itinerary.route) {
-    mapLocations = [
-      ...itinerary.route.map((stop, index) => ({
-        id: `route-${index}`,
-        name: stop.name,
-        lat: stop.lat,
-        lng: stop.lng,
-        type: 'route' as const,
-      })),
-      // Also include current day's activities
-      ...(activeDayData?.items || []).map((item: any, index: number) => ({
-        id: item.id || `${activeDay}-${index}`,
-        name: item.name || '',
-        lat: item.location?.lat,
-        lng: item.location?.lng,
-        type: item.type || 'activity',
-      })).filter((item: any) => item.lat && item.lng)
-    ]
-  } else {
-    // Show day's activities
-    mapLocations = (activeDayData?.items || []).map((item: any, index: number) => ({
-      id: item.id || `${activeDay}-${index}`,
-      name: item.name || '',
-      lat: item.location?.lat,
-      lng: item.location?.lng,
-      type: item.type || 'activity',
-    })).filter((item: any) => item.lat && item.lng)
-  }
-
-  const budgetItems = [
-    { label: t('form_transport'), icon: 'flight', cost: Math.round(itinerary.totalCost * 0.3) },
-    { label: t('tour_relaxed'), icon: 'hotel', cost: Math.round(itinerary.totalCost * 0.35) },
-    { label: t('interest_gastronomy'), icon: 'restaurant', cost: Math.round(itinerary.totalCost * 0.2) },
-    { label: t('form_interests'), icon: 'confirmation_number', cost: Math.round(itinerary.totalCost * 0.15) },
-  ]
-
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <section className="w-[60%] flex flex-col overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 custom-scrollbar">
-        <div className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 pt-4 border-b border-slate-100 dark:border-slate-800">
-          {itinerary.transportType === 'car' && itinerary.route && (
-            <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <p className="text-sm font-bold text-blue-700 dark:text-blue-300">
-                🚗 {t('iti_road_trip_msg')}: {itinerary.origin} → {itinerary.destination}
+    <div className="grid grid-cols-[1100px_1fr] h-[calc(100vh-120px)] w-full overflow-hidden bg-background-light dark:bg-slate-950 text-slate-600 dark:text-slate-400 relative z-0">
+      {/* Translation Overlay */}
+      {isTranslating && (
+        <div className="absolute inset-0 z-[100] bg-slate-950/40 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-500">
+           <div className="size-20 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mb-6" />
+           <p className="text-white font-black text-2xl tracking-tighter uppercase animate-pulse">{t('loading_itinerary') || 'Translating...'}</p>
+        </div>
+      )}
+      {/* Sidebar - Pure Side Column */}
+      <aside className="h-full flex flex-col bg-white/40 dark:bg-slate-800/20 backdrop-blur-2xl border-r border-slate-100 dark:border-white/10 relative z-50 shadow-premium overflow-hidden">
+        <div className="p-8 pb-4 shrink-0 bg-gradient-to-b from-soft-sky/20 to-transparent dark:from-slate-800/10 flex justify-between items-start">
+           <div>
+             <div className="flex items-center gap-2 text-sky-500/80 dark:text-sky-400 uppercase text-[9px] font-black tracking-[0.4em] mb-1">
+               <span className="material-symbols-outlined text-[14px] font-black">location_on</span>
+               {itinerary?.destination}
+             </div>
+             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-tight drop-shadow-sm">
+               {itinerary?.title}
+             </h1>
+           </div>
+        </div>
+
+        {/* Days Navigation - Refined Pastel Style */}
+        <div className="px-8 py-3 dark:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800/50 flex gap-2 overflow-x-auto no-scrollbar shrink-0">
+          {itinerary.days?.map((day: any, index: number) => (
+            <button
+              key={index}
+              onClick={() => setActiveDay(index)}
+              className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 shrink-0 border-2 ${
+                activeDay === index
+                   ? 'bg-white dark:bg-[#131c3b]/60 border-sky-400/30 text-sky-600 dark:text-sky-300 shadow-premium-hover scale-[1.03]'
+                   : 'bg-slate-50/50 dark:bg-[#131c3b]/20 border-transparent text-slate-400 dark:text-slate-500 hover:border-sky-100 dark:hover:border-sky-900 hover:bg-white dark:hover:bg-slate-800'
+              }`}
+            >
+              {t('day_label')} {day.day || index + 1}
+            </button>
+          ))}
+        </div>
+
+        {/* Timeline Area - Luminous Airy Design */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-12 pb-10 bg-gradient-to-b from-white/30 to-soft-lavender/10 dark:from-slate-900/20 dark:to-slate-950/20">
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-3">
+                <div className="size-2 rounded-full bg-sky-400/40" />
+                {activeDayData?.title || `${t('day_label')} ${activeDay + 1}`}
+              </h2>
+            </div>
+            
+            <div className="p-8 bg-sky-50/30 dark:bg-slate-800/60 rounded-[2.5rem] border border-sky-100/50 dark:border-white/10 shadow-sm backdrop-blur-md mb-12">
+              <p className="text-slate-700 dark:text-slate-200 text-sm leading-relaxed font-bold italic">
+                {activeDayData?.description}
               </p>
             </div>
-          )}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3">
-            {itinerary.days?.map((day: any, index: number) => (
-              <button
-                key={index}
-                onClick={() => setActiveDay(index)}
-                className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                  activeDay === index
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                {t('iti_day_label')} {day.day || index + 1}
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        <div className="p-8 pt-16 max-w-3xl mx-auto w-full">
-          <div className="mb-6">
-            <h2 className="text-4xl font-black text-slate-900 dark:text-slate-100 mb-2 tracking-tight">
-              {activeDayData?.title || `${t('iti_day_label')} ${activeDay + 1}`}
-            </h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-              {activeDayData?.description}
-            </p>
-          </div>
 
-          <div className="space-y-0 relative">
-            {(activeDayData?.items || []).map((item: any, itemIndex: number) => (
-              <TimelineItem
-                key={itemIndex}
-                item={{
-                  id: item.id || `${activeDay}-${itemIndex}`,
-                  type: item.type || 'activity',
-                  name: item.name || '',
-                  description: item.description || '',
-                  detailedDescription: item.detailedDescription,
-                  time: item.time || '09:00',
-                  duration: item.duration || `2 ${t('iti_hours_label')}`,
-                  cost: item.cost,
-                  imageSearchTerm: item.imageSearchTerm,
-                  rating: item.rating,
-                }}
-                index={itemIndex}
-                destination={itinerary.destination}
-              />
-            ))}
-          </div>
-
-          {itinerary.tips && activeDay === 0 && (
-            <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/20">
-              <h3 className="font-bold text-xl mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">lightbulb</span>
-                {t('iti_tips_label')}
-              </h3>
-              <ul className="space-y-3">
-                {itinerary.tips.map((tip: string, index: number) => (
-                  <li key={index} className="flex items-start gap-2 text-base text-slate-600 dark:text-slate-400">
-                    • {tip}
-                  </li>
-                ))}
-              </ul>
+            <div className="space-y-0">
+              {(() => {
+                let pinCounter = 0;
+                return activeDayData?.items?.map((item: any, idx: number) => {
+                  const needsMarker = hasMarker(item);
+                  const displayIndex = needsMarker ? pinCounter++ : -1;
+                  const stableId = item.id || `${activeDay}-${needsMarker ? (pinCounter - 1) : idx}`;
+                  
+                  return (
+                    <TimelineItem 
+                      key={item.id || idx} 
+                      item={item} 
+                      index={displayIndex} 
+                      destination={itinerary.destination}
+                      onMouseEnter={() => setHoveredItemId(stableId)}
+                      onMouseLeave={() => setHoveredItemId(null)}
+                    />
+                  );
+                });
+              })()}
             </div>
-          )}
+          </div>
         </div>
-      </section>
+      </aside>
 
-      <section className="w-[40%] relative bg-slate-200 dark:bg-slate-800 overflow-hidden">
-        <div className="absolute inset-0">
-          <InteractiveMap 
-            locations={mapLocations}
-            center={mapLocations[0] ? [mapLocations[0].lat, mapLocations[0].lng] as [number, number] : undefined}
-          />
+      {/* Main Area: Vertical Split (Map 75%, Budget 25%) */}
+      <main className="flex flex-col h-full bg-background-light dark:bg-[#0f172a] overflow-hidden">
+        {/* Main Area: Full Map */}
+        <div className="h-full relative shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+          <div className="absolute inset-0">
+            <InteractiveMap 
+              locations={mapLocations}
+              center={mapLocations[0] ? [mapLocations[0].lat, mapLocations[0].lng] : undefined}
+              travelMode={itinerary.transportType === 'car' ? 'DRIVING' : 'WALKING'}
+              hoveredId={hoveredItemId}
+            />
+          </div>
         </div>
-
-        <div className="absolute bottom-6 left-6 right-6 z-20">
-          <BudgetPanel items={budgetItems} total={itinerary.totalCost || 0} />
-        </div>
-
-        <div className="absolute top-6 right-6 flex flex-col gap-2 z-20">
-          <button className="bg-white dark:bg-slate-900 size-10 rounded-lg shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
-            <span className="material-symbols-outlined">add</span>
-          </button>
-          <button className="bg-white dark:bg-slate-900 size-10 rounded-lg shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
-            <span className="material-symbols-outlined">remove</span>
-          </button>
-          <button className="bg-white dark:bg-slate-900 size-10 rounded-lg shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
-            <span className="material-symbols-outlined">my_location</span>
-          </button>
-        </div>
-      </section>
+      </main>
     </div>
   )
 }
 
 export default function ItineraryPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="text-center">
-          <div className="relative size-24 mx-auto mb-4">
-            <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs animate-pulse">TripNovaAI</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<div className="h-screen bg-background-light" />}>
       <ItineraryContent />
     </Suspense>
   )

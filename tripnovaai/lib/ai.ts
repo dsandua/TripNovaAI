@@ -13,19 +13,25 @@ export interface ItineraryDay {
 
 export interface ItineraryItem {
   id: string
-  type: 'activity' | 'restaurant' | 'route' | 'hotel'
+  type: 'activity' | 'restaurant' | 'route' | 'hotel' | 'transport'
   name: string
   description: string
-  detailedDescription: string // Comprehensive explanation for historical/popular places
+  detailedDescription: string
   time: string
   duration: string
   cost?: number
-  imageSearchTerm: string // New field for specific search
+  imageSearchTerm: string
   location?: {
     lat: number
     lng: number
   }
   rating?: number
+  phone?: string
+  website?: string
+  openingHours?: string[]
+  isOpenNow?: boolean
+  editorialSummary?: string
+  address?: string
 }
 
 export interface GeneratedItinerary {

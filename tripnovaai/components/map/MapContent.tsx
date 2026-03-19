@@ -1,9 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { GoogleMap, useJsApiLoader, Marker, DirectionsRenderer, InfoWindow } from '@react-google-maps/api'
 
 interface MapLocation {
   id: string
@@ -17,117 +15,149 @@ interface InteractiveMapProps {
   locations: MapLocation[]
   center?: [number, number]
   zoom?: number
+  travelMode?: 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT'
+  hoveredId?: string | null
 }
 
-function SetBounds({ locations }: { locations: MapLocation[] }) {
-  const map = useMap()
-  useEffect(() => {
-    if (locations && locations.length > 0) {
-      const validLocations = locations.filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng))
-      if (validLocations.length > 0) {
-        const bounds = L.latLngBounds(validLocations.map(loc => [loc.lat, loc.lng]))
-        map.fitBounds(bounds, { padding: [50, 50] })
-      }
-    }
-  }, [locations, map])
-  return null
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+  borderRadius: '0px'
 }
 
-const createCustomIcon = (type: string, number?: number) => {
-  const colors: Record<string, string> = {
-    activity: '#f43f5e',
-    restaurant: '#0ea5e9',
-    route: '#10b981',
-    hotel: '#8b5cf6',
-  }
-  const color = colors[type] || '#f43f5e'
-  
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `
-      <div class="relative group">
-        <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-xl border-2 transition-transform group-hover:scale-110" style="border-color: ${color}">
-          <span class="text-[10px] font-black" style="color: ${color}">${number || ''}</span>
-        </div>
-        <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 border-r-2 border-b-2 bg-white" style="border-color: ${color}"></div>
-      </div>
-    `,
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
+export default function MapContent({ 
+  locations,
+  center = [41.9028, 12.4964], 
+  zoom = 8,
+  travelMode = 'DRIVING',
+  hoveredId = null
+}: InteractiveMapProps) {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
   })
-}
 
-export default function MapContent({ locations, center = [41.9028, 12.4964], zoom = 13 }: InteractiveMapProps) {
-  const [isMounted, setIsMounted] = useState(false)
+  const [map, setMap] = useState<google.maps.Map | null>(null)
+  const mapCenter = useMemo(() => ({ lat: center[0], lng: center[1] }), [center[0], center[1]])
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null)
+  const [selectedPlace, setSelectedPlace] = useState<MapLocation | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const calculateRoute = useCallback(async () => {
+    if (locations.length < 2) return
+
+    const directionsService = new google.maps.DirectionsService()
+    const validLocations = locations.filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng))
+    
+    if (validLocations.length < 2) return
+
+    const origin = { lat: validLocations[0].lat, lng: validLocations[0].lng }
+    const destination = { lat: validLocations[validLocations.length - 1].lat, lng: validLocations[validLocations.length - 1].lng }
+    const waypoints = validLocations.slice(1, -1).map(loc => ({
+      location: { lat: loc.lat, lng: loc.lng },
+      stopover: true
+    }))
+
+    try {
+      const mode = (google.maps.TravelMode as any)[travelMode] || google.maps.TravelMode.DRIVING
+
+      const results = await directionsService.route({
+        origin,
+        destination,
+        waypoints,
+        travelMode: mode,
+      })
+      setDirectionsResponse(results)
+    } catch (e) {
+      console.error('Route calculation failed:', e)
+    }
+  }, [locations, travelMode])
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    if (isLoaded && locations.length >= 2) {
+      calculateRoute()
+    }
+  }, [isLoaded, locations, calculateRoute])
 
-  if (!isMounted) {
-    return (
-      <div className="w-full h-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-        <span className="material-symbols-outlined text-4xl text-slate-400 animate-spin">sync</span>
-      </div>
-    )
-  }
+  useEffect(() => {
+    if (map && containerRef.current) {
+      const observer = new ResizeObserver(() => {
+        google.maps.event.trigger(map, 'resize')
+      })
+      observer.observe(containerRef.current)
+      return () => observer.disconnect()
+    }
+  }, [map])
 
-  const polylinePositions = locations
-    .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng))
-    .map(loc => [loc.lat, loc.lng] as [number, number])
+  const onLoad = useCallback((map: google.maps.Map) => {
+    const bounds = new window.google.maps.LatLngBounds()
+    if (locations.length > 0) {
+      locations.forEach(loc => bounds.extend({ lat: loc.lat, lng: loc.lng }))
+      
+      map.fitBounds(bounds)
+      
+      const listener = google.maps.event.addListener(map, 'idle', () => {
+        if (map.getZoom()! > 12) map.setZoom(12)
+        google.maps.event.removeListener(listener)
+      })
+    }
+    setMap(map)
+  }, [locations])
+
+  if (!isLoaded) return <div className="animate-pulse bg-slate-200 w-full h-full" />
 
   return (
-    <MapContainer
-      center={center}
-      zoom={zoom}
-      className="w-full h-full"
-      style={{ background: '#f8f9fa' }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-      />
-      <SetBounds locations={locations} />
-      
-      {polylinePositions.length > 1 && (
-        <Polyline 
-          positions={polylinePositions} 
-          color="#3b82f6" 
-          weight={4} 
-          opacity={0.6} 
-          dashArray="10, 10"
-        />
-      )}
+    <div ref={containerRef} className="w-full h-full">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={mapCenter}
+        zoom={zoom}
+        onLoad={onLoad}
+        options={{
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: true,
+          streetViewControl: true,
+          fullscreenControl: true,
+          backgroundColor: '#f8fafc'
+        }}
+      >
+        {directionsResponse && (
+          <DirectionsRenderer 
+            directions={directionsResponse}
+            options={{
+              suppressMarkers: true
+            }}
+          />
+        )}
 
-      {locations.map((location, index) => (
-        <Marker
-          key={location.id || index}
-          position={[location.lat, location.lng]}
-          icon={createCustomIcon(location.type, index + 1)}
-        >
-          <Popup>
-            <div className="p-1 min-w-[120px]">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-primary text-xs">
-                  {location.type === 'activity' ? 'museum' : location.type === 'restaurant' ? 'restaurant' : location.type === 'route' ? 'hiking' : 'hotel'}
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                  {location.type}
-                </span>
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 leading-tight mb-1">{location.name}</h3>
-              <div className="flex items-center gap-1">
-                <div className="flex text-yellow-500">
-                    <span className="material-symbols-outlined text-[10px] filled-icon">star</span>
-                    <span className="material-symbols-outlined text-[10px] filled-icon">star</span>
-                    <span className="material-symbols-outlined text-[10px] filled-icon">star</span>
-                    <span className="material-symbols-outlined text-[10px] filled-icon">star</span>
-                </div>
-              </div>
+        {locations.map((loc, index) => (
+          <Marker
+            key={loc.id || index}
+            position={{ lat: loc.lat, lng: loc.lng }}
+            label={{
+              text: (index + 1).toString(),
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '12px'
+            }}
+            onClick={() => setSelectedPlace(loc)}
+            animation={hoveredId === loc.id ? 1 : undefined} // 1 = BOUNCE
+          />
+        ))}
+
+        {selectedPlace && (
+          <InfoWindow
+            position={{ lat: selectedPlace.lat, lng: selectedPlace.lng }}
+            onCloseClick={() => setSelectedPlace(null)}
+          >
+            <div className="p-2 text-slate-900 min-w-[200px]">
+              <h3 className="font-bold border-b pb-1 mb-1">{selectedPlace.name}</h3>
+              <p className="text-xs text-slate-500 uppercase font-black">{selectedPlace.type}</p>
             </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+          </InfoWindow>
+        )}
+      </GoogleMap>
+    </div>
   )
 }

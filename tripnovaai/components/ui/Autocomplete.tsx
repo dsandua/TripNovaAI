@@ -38,7 +38,7 @@ export default function Autocomplete({
   }, [])
 
   const fetchSuggestions = async (query: string) => {
-    if (query.length < 3) {
+    if (query.trim().length < 3) {
       setSuggestions([])
       return
     }
@@ -46,7 +46,6 @@ export default function Autocomplete({
     setIsLoading(true)
     try {
       // Using Photon API (free, open source)
-      // Correct filter for cities is osm_tag=place:city
       const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5${type === 'city' ? '&osm_tag=place:city' : ''}`
       const response = await fetch(url)
       
@@ -78,15 +77,20 @@ export default function Autocomplete({
     }
   }
 
+  // Ref for debouncing
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     onChange(val)
     
-    // Debounce
-    const timeoutId = setTimeout(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+    
+    debounceTimer.current = setTimeout(() => {
       fetchSuggestions(val)
-    }, 300)
-    return () => clearTimeout(timeoutId)
+    }, 400)
   }
 
   return (
@@ -96,42 +100,46 @@ export default function Autocomplete({
         placeholder={placeholder}
         value={value}
         onChange={handleInputChange}
-        onFocus={() => value.length >= 3 && setShowDropdown(true)}
+        onFocus={() => value.length >= 3 && setSuggestions.length > 0 && setShowDropdown(true)}
         icon={icon}
         className={className}
       />
       
       {showDropdown && suggestions.length > 0 && (
-        <div className="absolute z-[100] w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-60 overflow-y-auto overflow-x-hidden">
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              type="button"
-              className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border-b border-slate-50 dark:border-slate-800 last:border-0"
-              onClick={() => {
-                onChange(suggestion.display)
-                setShowDropdown(false)
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-slate-400 text-sm">
-                  {type === 'city' ? 'location_city' : 'place'}
-                </span>
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold truncate">{suggestion.name}</span>
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+        <div className="absolute z-[100] w-full mt-2 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="max-h-72 overflow-y-auto custom-scrollbar">
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                type="button"
+                className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all border-b border-slate-50 dark:border-slate-800/50 last:border-0 group/item flex items-center gap-4"
+                onClick={() => {
+                  onChange(suggestion.display)
+                  setShowDropdown(false)
+                }}
+              >
+                <div className="size-11 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center group-hover/item:scale-110 transition-transform shadow-sm">
+                  <span className="material-symbols-outlined text-sky-500 text-xl">
+                    {type === 'city' ? 'location_city' : 'place'}
+                  </span>
+                </div>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-sm font-black text-slate-900 dark:text-white truncate group-hover/item:text-sky-600 dark:group-hover/item:text-sky-400 transition-colors">
+                    {suggestion.name}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] truncate">
                     {suggestion.state ? `${suggestion.state}, ` : ''}{suggestion.country}
                   </span>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
+          </div>
         </div>
       )}
       
       {isLoading && (
-        <div className="absolute right-3 top-10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-sm text-primary animate-spin">sync</span>
+        <div className="absolute right-4 top-[42px] flex items-center justify-center">
+            <div className="size-4 border-2 border-sky-400/30 border-t-sky-500 rounded-full animate-spin" />
         </div>
       )}
     </div>

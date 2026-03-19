@@ -15,6 +15,8 @@ interface InteractiveMapProps {
   locations: MapLocation[]
   center?: [number, number]
   zoom?: number
+  travelMode?: 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT'
+  hoveredId?: string | null
 }
 
 function MapFallback() {

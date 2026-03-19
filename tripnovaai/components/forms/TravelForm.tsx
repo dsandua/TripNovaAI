@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Autocomplete from '@/components/ui/Autocomplete'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
+import LoadingOverlay from '@/components/ui/LoadingOverlay'
 import { useLanguage } from '@/lib/i18n'
 
 export interface TravelFormData {
@@ -18,6 +19,8 @@ export interface TravelFormData {
   interests: string[]
   includeFlights: 'no' | 'include' | 'show'
   departureAirport?: string
+  arrivalTime?: string
+  departureTime?: string
   flexibleDates?: boolean
   language: string // Pass language to AI
 }
@@ -37,6 +40,8 @@ export default function TravelForm() {
     travelType: 'cultural',
     interests: [],
     includeFlights: 'no',
+    arrivalTime: '10:00',
+    departureTime: '18:00',
     language: language
   })
 
@@ -65,63 +70,86 @@ export default function TravelForm() {
     { value: '6+', label: t('trav_group') || 'Group' },
   ]
 
-  const interestsList = [
-    'hiking', 'cycling', 'photography', 'scenic_viewpoints',
-    'historic_towns', 'gastronomy', 'beaches', 'nature'
-  ]
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
+
+  const handleCancel = () => {
+    if (abortController) {
+      abortController.abort()
+      setAbortController(null)
+    }
+    setLoading(false)
+    setError('')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!formData.destination) {
-      setError(t('error_destination'))
-      return
+      alert(t('err_no_destination'));
+      setError(t('err_no_destination_first'));
+      return;
     }
     
-    setError('')
-    setLoading(true)
+    console.log('--- FORM SUBMITTING ---');
+    setError('');
+    setLoading(true);
+
+    const controller = new AbortController()
+    setAbortController(controller)
+
+    const timeout = setTimeout(() => {
+      if (loading) {
+        setError(t('err_timeout'));
+        setLoading(false);
+      }
+    }, 45000); // 45s safety timeout
 
     try {
+      console.log('Generating itinerary...', formData);
       const response = await fetch('/api/generate-itinerary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, language }),
+        signal: controller.signal
       })
 
-      const result = await response.json()
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseErr) {
+        if (controller.signal.aborted) return // Ignore if cancelled
+        console.error('Failed to parse response:', parseErr);
+        setError(t('err_server'));
+        setLoading(false);
+        return;
+      }
       
       if (result.success) {
         sessionStorage.setItem('currentItinerary', JSON.stringify(result))
         router.push(`/itinerary?slug=${result.slug}`)
       } else {
+        console.error('Generation failed:', result.error);
         setError(result.error || t('form_error'))
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.log('Fetch aborted by user');
+        return
+      }
+      console.error('Fetch error:', err);
       setError(t('form_error'))
     } finally {
-      setLoading(false)
+      if (!controller.signal.aborted) {
+        setLoading(false)
+        setAbortController(null)
+      }
     }
   }
 
-  const toggleInterest = (interest: string) => {
-    setFormData(prev => ({
-      ...prev,
-      interests: prev.interests.includes(interest)
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
-    }))
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 p-1">
+      {/* 1. Destination */}
       <div className="space-y-4">
-        <Autocomplete
-          label={t('form_origin')}
-          placeholder={t('form_origin_placeholder')}
-          value={formData.origin}
-          onChange={(val) => setFormData({ ...formData, origin: val })}
-          icon={<span className="material-symbols-outlined text-sm">location_on</span>}
-        />
         <Autocomplete
           label={t('form_destination')}
           placeholder={t('form_destination_placeholder')}
@@ -131,44 +159,7 @@ export default function TravelForm() {
         />
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <span className="text-sm font-semibold mb-2 block">{t('form_transport')}</span>
-          <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, transportType: 'plane' })}
-              className={`flex-1 py-1.5 px-3 rounded-md text-sm font-medium flex items-center justify-center gap-1 transition-all ${
-                formData.transportType === 'plane'
-                  ? 'bg-white dark:bg-slate-700 shadow-sm'
-                  : 'text-slate-500'
-              }`}
-            >
-              <span className="material-symbols-outlined text-sm">flight</span>
-              {t('form_plane')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, transportType: 'car' })}
-              className={`flex-1 py-1.5 px-3 rounded-md text-sm font-medium flex items-center justify-center gap-1 transition-all ${
-                formData.transportType === 'car'
-                  ? 'bg-white dark:bg-slate-700 shadow-sm'
-                  : 'text-slate-500'
-              }`}
-            >
-              <span className="material-symbols-outlined text-sm">directions_car</span>
-              {t('form_car')}
-            </button>
-          </div>
-        </div>
-        <Select
-          label={t('form_travelers')}
-          options={travelers}
-          value={formData.travelers}
-          onChange={(e) => setFormData({ ...formData, travelers: e.target.value })}
-        />
-      </div>
-
+      {/* 2. Duration */}
       <div className="space-y-4">
         <Select
           label={t('form_duration')}
@@ -176,59 +167,32 @@ export default function TravelForm() {
           value={formData.duration}
           onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
         />
-        <Select
-          label={t('form_budget')}
-          options={[
-            { value: '0-500', label: t('budget_low') || '$0 - $500' },
-            { value: '500-1000', label: '$500 - $1,000' },
-            { value: '1000-2000', label: '$1,000 - $2,000' },
-            { value: '2000-3000', label: '$2,000 - $3,000' },
-            { value: '3000+', label: t('budget_high') || '$3,000+' },
-          ]}
-          value={formData.budget}
-          onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-        />
       </div>
 
-      <div className="space-y-4">
-        <Select
-          label={t('form_style')}
-          options={travelTypes}
-          value={formData.travelType}
-          onChange={(e) => setFormData({ ...formData, travelType: e.target.value })}
-        />
-        <div>
-          <span className="text-sm font-semibold mb-1 block">{t('form_interests')}</span>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {interestsList.map((interest) => (
-              <button
-                key={interest}
-                type="button"
-                onClick={() => toggleInterest(interest)}
-                className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${
-                  formData.interests.includes(interest)
-                    ? 'bg-primary/10 text-primary border-primary/20'
-                    : 'bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200'
-                }`}
-              >
-                {t(`interest_${interest}`) || interest.replace('_', ' ')}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="lg:col-span-4 mt-4">
+      {/* Submit Section */}
+      <div className="md:col-span-2 mt-4">
         {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm">
-            {error}
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 rounded-[1.5rem] border border-red-100 dark:border-red-900/20 text-sm font-bold animate-shake">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">error</span>
+              <span className="line-clamp-3">
+                {error.length > 200 ? `${t('form_error')} (Inténtalo de nuevo)` : error}
+              </span>
+            </div>
           </div>
         )}
-        <Button type="submit" size="lg" className="w-full" disabled={loading}>
-          <span className="material-symbols-outlined">auto_awesome</span>
+        <Button 
+          type="submit" 
+          size="lg" 
+          className="w-full h-16 rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-premium transform transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3" 
+          isLoading={loading}
+        >
+          <span className="material-symbols-outlined text-2xl">auto_awesome</span>
           {loading ? t('form_loading') : t('form_btn_generate')}
         </Button>
       </div>
+
+      <LoadingOverlay isOpen={loading} onCancel={handleCancel} />
     </form>
   )
 }

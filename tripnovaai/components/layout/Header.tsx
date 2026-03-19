@@ -21,24 +21,23 @@ export default function Header() {
   const navLinks = [
     { href: '/', label: t('nav_explore') },
     { href: '/discover', label: t('nav_discover') },
-    { href: '/saved', label: t('nav_my_trips') },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
-      <div className="container mx-auto px-6 py-6 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+      <div className="container mx-auto px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           {mounted && theme === 'dark' ? (
             <img 
               src="/images/LogoWT.png" 
               alt="TripNovaAI" 
-              className="h-32 w-auto transition-transform hover:scale-105"
+              className="h-24 w-auto transition-transform hover:scale-105"
             />
           ) : (
             <img 
               src="/images/LogoCT.png" 
               alt="TripNovaAI" 
-              className="h-32 w-auto transition-transform hover:scale-105"
+              className="h-24 w-auto transition-transform hover:scale-105"
             />
           )}
         </Link>
@@ -51,7 +50,7 @@ export default function Header() {
               className={`text-lg font-bold transition-colors ${
                 pathname === link.href
                   ? 'text-primary underline underline-offset-8 decoration-4'
-                  : 'hover:text-primary text-slate-600 dark:text-slate-400'
+                  : 'hover:text-primary text-white/80 dark:text-slate-400'
               }`}
             >
               {link.label}
@@ -80,23 +79,8 @@ export default function Header() {
             </button>
           </div>
 
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            aria-label="Toggle theme"
-          >
-            <span className="material-symbols-outlined">
-              {mounted && theme === 'dark' ? 'light_mode' : 'dark_mode'}
-            </span>
-          </button>
-          
-          <div className="hidden sm:flex items-center gap-2">
-            <Button variant="ghost" size="sm">
-              {t('btn_login')}
-            </Button>
-            <Button variant="primary" size="sm">
-              {t('btn_signup')}
-            </Button>
+          <div className="p-2 rounded-lg text-white/40">
+            <span className="material-symbols-outlined">auto_awesome</span>
           </div>
         </div>
       </div>

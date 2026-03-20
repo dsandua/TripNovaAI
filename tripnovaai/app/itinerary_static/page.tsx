@@ -161,7 +161,13 @@ export default function ItineraryPage() {
         </div>
 
         <div className="absolute bottom-6 left-6 right-6 z-20">
-          <BudgetPanel items={budgetItems} total={itinerary.totalCost || 0} />
+          <BudgetPanel budget={{ 
+            total: itinerary.totalCost || 0,
+            activities: Math.round(itinerary.totalCost * 0.15),
+            food: Math.round(itinerary.totalCost * 0.2),
+            transport: Math.round(itinerary.totalCost * 0.3),
+            currency: '€' 
+          }} />
         </div>
 
         <div className="absolute top-6 right-6 flex flex-col gap-2 z-20">

@@ -24,6 +24,8 @@ interface TimelineItemProps {
     openingHours?: string[]
     isOpenNow?: boolean
     editorialSummary?: string
+    cost?: number | string
+    image?: string
   }
   index: number
   destination?: string

@@ -172,7 +172,9 @@ export const translations: Translations = {
   disc_btn_discover: { en: 'Discover', es: 'Descubrir' },
   disc_searching: { en: 'Searching...', es: 'Buscando...' },
   disc_recommended: { en: 'Recommended for You', es: 'Recomendado para ti' },
-  disc_generate_full: { en: 'Generate Full Itinerary', es: 'Generar Itinerario Completo' },
+  disc_generate_full: { en: 'Generate Full Trip', es: 'Generar Viaje Completo' },
+  load_more_btn: { en: 'Generate More Magic', es: 'Generar Más Magia' },
+  disc_random_hint: { en: 'Our AI will suggest new unexplored gems', es: 'Nuestra IA sugerirá nuevas gemas sin explorar' },
   disc_empty: { en: 'Enter details above to discover destinations!', es: '¡Introduce los detalles arriba para descubrir destinos!' },
   disc_mode: { en: 'Discovery Mode', es: 'Modo Descubrimiento' },
 

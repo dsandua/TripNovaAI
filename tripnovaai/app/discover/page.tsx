@@ -26,6 +26,8 @@ export default function DiscoverPage() {
   const { t, language } = useLanguage()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [dynamicDestinations, setDynamicDestinations] = useState<any[]>([])
+  const [isGeneratingMore, setIsGeneratingMore] = useState(false)
 
   const handleCardClick = async (destination: string, duration: string) => {
     setLoading(true)
@@ -57,6 +59,31 @@ export default function DiscoverPage() {
       setLoading(false)
     }
   }
+
+  const generateMore = async () => {
+    setIsGeneratingMore(true);
+    try {
+      const response = await fetch(`/api/random-destinations?lang=${language}`);
+      const result = await response.json();
+      if (result.success) {
+        setDynamicDestinations(prev => [...prev, ...result.destinations]);
+      }
+    } catch (err) {
+      console.error('Error generating more:', err);
+    } finally {
+      setIsGeneratingMore(false);
+    }
+  }
+
+  const displayedDestinations = [
+    ...allDestinations.map(d => ({
+      ...d,
+      title: t(d.titleKey),
+      location: t(d.locationKey),
+      duration: t(d.durationKey)
+    })),
+    ...dynamicDestinations
+  ]
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-slate-950 relative overflow-hidden">
@@ -94,15 +121,15 @@ export default function DiscoverPage() {
       </section>
 
       {/* Destination Grid */}
-      <section className="container mx-auto px-6 -mt-12">
+      <section className="container mx-auto px-6 -mt-12 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10">
-          {allDestinations.map((dest) => (
-            <button key={dest.id} onClick={() => handleCardClick(t(dest.locationKey), dest.durationKey)} className="group text-left focus:outline-none h-full">
+          {displayedDestinations.map((dest) => (
+            <button key={dest.id} onClick={() => handleCardClick(dest.location, dest.duration)} className="group text-left focus:outline-none h-full animate-in fade-in slide-in-from-bottom-5 duration-700">
               <Card variant="hover" className="h-full overflow-hidden rounded-[2.5rem] flex flex-col">
                 <div className="relative h-64 overflow-hidden">
                   <img
                     src={dest.image}
-                    alt={t(dest.titleKey)}
+                    alt={dest.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&q=80'
@@ -117,16 +144,16 @@ export default function DiscoverPage() {
                 
                 <div className="p-8 flex-1 flex flex-col">
                   <h3 className="text-2xl font-black mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
-                    {t(dest.titleKey)}
+                    {dest.title}
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 font-bold italic opacity-70">
-                    {t(dest.locationKey)}
+                    {dest.location}
                   </p>
                   
                   <div className="mt-auto pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                       <span className="material-symbols-outlined text-lg">calendar_month</span>
-                      <span className="text-xs font-black uppercase tracking-widest">{t(dest.durationKey)}</span>
+                      <span className="text-xs font-black uppercase tracking-widest">{dest.duration}</span>
                     </div>
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-950/50 rounded-lg">
                       <span className="material-symbols-outlined text-amber-500 text-sm fill-amber-500">star</span>
@@ -137,6 +164,27 @@ export default function DiscoverPage() {
               </Card>
             </button>
           ))}
+        </div>
+
+        {/* Load More Button - Premium Floating Style */}
+        <div className="mt-24 flex flex-col items-center">
+          <button 
+            onClick={generateMore}
+            disabled={isGeneratingMore}
+            className={`group relative px-12 py-5 bg-white dark:bg-slate-900 rounded-[2rem] shadow-premium hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 transform active:scale-95 flex items-center gap-4 border border-slate-100 dark:border-white/10 ${isGeneratingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <div className={`p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 ${isGeneratingMore ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`}>
+              <span className="material-symbols-outlined">{isGeneratingMore ? 'autorenew' : 'auto_awesome'}</span>
+            </div>
+            <span className="text-lg font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">
+              {isGeneratingMore ? (t('loading_itinerary') || 'Generating...') : (t('load_more_btn') || 'Generar más magia')}
+            </span>
+            <div className="absolute -inset-[2px] rounded-[2.1rem] bg-gradient-to-r from-blue-400 via-indigo-500 to-emerald-400 opacity-0 group-hover:opacity-20 transition-opacity blur-sm" />
+          </button>
+          
+          <p className="mt-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] opacity-50">
+            {t('disc_random_hint') || 'AI will suggest new unexplored gems'}
+          </p>
         </div>
       </section>
 

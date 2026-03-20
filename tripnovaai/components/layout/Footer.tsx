@@ -47,7 +47,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-900 text-center text-xs text-slate-400">
-          © {mounted ? new Date().getFullYear() : '2024'} TripNovaAI Inc. {t('footer_rights')} {t('footer_built_with')}
+          © {mounted ? new Date().getFullYear() : '2026'} TripNovaAI Inc. {t('footer_rights')} {t('footer_built_with')}
         </div>
       </div>
     </footer>
